@@ -2,7 +2,7 @@
   "lldb.displayFormat": "auto",
   "lldb.dereferencePointers": true,
   "lldb.consoleMode": "commands",
-  "lldb.showDisassembly": "auto",
+  "lldb.showDisassembly": "always",
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",
   "C_Cpp_Runner.debuggerPath": "gdb",

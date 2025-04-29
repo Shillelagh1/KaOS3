@@ -24,4 +24,4 @@ struct GDT{
     struct Segdesc* offset;
 } __attribute__((packed));
 
-extern void SetGDTR(struct GDT*);
+extern void _setGDTR(struct GDT*);

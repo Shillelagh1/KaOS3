@@ -9,6 +9,12 @@ build:
 	$$HOME/opt/cross/bin/i686-elf-gcc -g -c src/GDT/GDT.c -o tmp/GDT_c.o -ffreestanding -O2 -Wall -Wextra -fno-exceptions
 	nasm -felf32 src/GDT/GDT.s -o tmp/GDT_s.o
 
+	# IDT
+	$$HOME/opt/cross/bin/i686-elf-gcc -g -c src/IDT/IDT.c -o tmp/IDT_c.o -ffreestanding -O2 -Wall -Wextra -fno-exceptions
+	nasm -felf32 src/IDT/IDT.s -o tmp/IDT_s.o
+
+	$$HOME/opt/cross/bin/i686-elf-gcc -g -c src/IDT/int_errh.c -o tmp/int_errh_c.o -ffreestanding -O2 -Wall -Wextra -fno-exceptions -Wno-unused-parameter -Wno-unused-function
+
 	# Link
 	rm bin -r -f
 	mkdir bin
@@ -31,4 +37,5 @@ run: build
 	qemu-system-i386 -cdrom bin/TOS3.iso -monitor stdio
 
 dbg: build
+	xterm -e "gdb -ex 'target remote localhost:1234' -ex 'symbol-file bin/TOS3.sym'" &
 	qemu-system-i386 -s -S -cdrom bin/TOS3.iso

@@ -1,6 +1,7 @@
 bits 32
 
 extern SetupGDT
+extern SetupIDT
 
 ; Multiboot header
 MBALIGN  equ  1 << 0
@@ -26,8 +27,10 @@ section .text
     ; Entry point for the kernel
     global _start
     _start:
-        call SetupGDT
         cli
+        call SetupGDT
+        call SetupIDT
+        sti
     .e:
         hlt
         jmp .e

@@ -1,6 +1,6 @@
 section .text
-SetGDTR:
-    global SetGDTR
+_setGDTR:
+    global _setGDTR
 
     ; Setup GDT
     mov eax, [esp + 4]

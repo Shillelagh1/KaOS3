@@ -40,5 +40,5 @@ extern void SetupGDT(
     gdt.size = GDT_SIZE;
     gdt.offset = segdesc_Array;
 
-    SetGDTR(&gdt);
+    _setGDTR(&gdt);
 }
