@@ -1,3 +1,8 @@
+/* TODO -- Implement some kind of ISR stub table to make this far more 
+ modular. This current implementation is fine for errors but we will struggle
+ with anything else.
+*/
+
 #include "IDT.h"
 #include "int_errh.h"
 
