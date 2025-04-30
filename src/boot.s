@@ -2,6 +2,7 @@ bits 32
 
 extern SetupGDT
 extern SetupIDT
+extern SetupSerialPort
 
 ; Multiboot header
 MBALIGN  equ  1 << 0
@@ -30,6 +31,10 @@ section .text
         cli
         call SetupGDT
         call SetupIDT
+
+        mov ax, 0x3F8
+        push ax
+        call SetupSerialPort
         sti
     .e:
         hlt
