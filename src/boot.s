@@ -1,8 +1,6 @@
 bits 32
 
-extern SetupGDT
-extern SetupIDT
-extern SetupSerialPort
+extern boot_c_setup
 
 ; Multiboot header
 MBALIGN  equ  1 << 0
@@ -29,12 +27,9 @@ section .text
     global _start
     _start:
         cli
-        call SetupGDT
-        call SetupIDT
-
-        mov ax, 0x3F8
-        push ax
-        call SetupSerialPort
+        
+        call boot_c_setup
+        
         sti
     .e:
         hlt

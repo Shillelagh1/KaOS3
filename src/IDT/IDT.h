@@ -20,4 +20,5 @@ struct IDT{
     struct Intdesc* offset;
 } __attribute__((packed));
 
+extern void SetupIDT();
 extern void _setIDTR(struct IDT*);
