@@ -1,0 +1,12 @@
+#define SER_REG_RX 0 // R
+#define SER_REG_TX 0 // W
+#define SER_REG_INTERRUPT_ENABLE 0 // RW
+#define SER_REG_DLAB_DIVISOR_LSB 0 // RW
+#define SER_REG_DLAB_DIVISOR_MSB 1 // RW
+#define SER_REG_INTERRUPT_ID 2 // R
+#define SER_REG_FIFO 2 // W
+#define SER_REG_LINECTL 3 // RW
+#define SER_REG_MODEMCTL 4 // RW
+#define SER_REG_LINESTAT 5 // R
+#define SER_REG_MODEMSTAT 6 // R
+#define SER_REG_SCRATCPAD 7 // RW

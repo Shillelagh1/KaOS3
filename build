@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Compile all of the source files
+echo -e "\033[4;35m> Compiling\033[0;0m"
+rm tmp -r -f
+mkdir tmp
+mkdir tmp/o
+
+find src -type f | while read fname; do
+    output_name=$(echo "$fname" | perl -pe 's|/|-|g; s|\.(?=.+)|_|g')
+    output_file=$"tmp/o/$output_name.o"
+    if [[ $fname =~ .+\.c$ ]]; then     # Compile C files
+        $HOME/opt/cross/bin/i686-elf-gcc -g -c $fname -o $output_file -ffreestanding -O2 -Wall -Wextra -fno-exceptions -Wno-unused-parameter -Wno-unused-function
+    elif [[ $fname =~ .+\.s$ ]]; then   # Compile asm (.s) files
+        nasm -felf32 $fname -o $output_file
+    fi
+done;
+
+# Link object files
+echo -e "\033[4;35m> Linking\033[0;0m"
+rm bin -r -f
+mkdir bin
+$HOME/opt/cross/bin/i686-elf-gcc -g -T src/LINKER.ld -ffreestanding -O2 -nostdlib -lgcc tmp/o/*
+
+# Verify multiboot 
+grub-file --is-x86-multiboot bin/TOS3.bin
+if [ $? == 0 ]; then
+    echo -e "\033[0;32m> Multiboot Confirmed\033[0;0m"
+else
+    echo -e "\033[0;31m> Multiboot Failed\033[0;0m"
+fi
+
+# Extract symbols
+echo -e "\033[4;35m> Generating symbols\033[0;0m"
+objcopy --only-keep-debug bin/TOS3.bin bin/TOS3.sym
+objcopy --strip-debug bin/TOS3.bin
+
+# Make an .iso
+echo -e "\033[4;35m> Creating .iso\033[0;0m"
+mkdir -p tmp/iso/boot/grub
+cp bin/TOS3.bin tmp/iso/boot/TOS3.bin
+cp src/grub.cfg tmp/iso/boot/grub/grub.cfg
+grub-mkrescue -o bin/TOS3.iso tmp/iso
+
+echo -e "\033[4;35m> Done\033[0;0m"

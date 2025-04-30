@@ -1,13 +1,4 @@
 ENTRY(_start)
-INPUT
-(
-    tmp/boot_s.o
-    tmp/GDT_c.o
-	tmp/GDT_s.o
-	tmp/IDT_c.o
-	tmp/IDT_s.o
-	tmp/int_errh_c.o
-)
 OUTPUT(bin/TOS3.bin)
 
 SECTIONS
