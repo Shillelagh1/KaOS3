@@ -6,6 +6,8 @@ _setIDTR:
     mov eax, [esp + 4]
     lidt [eax]
 
+    ; TODO -- Remove the magic here
+    ; Setup PICs
     mov al, 0x11
     out 0x20, al
     out 0xA0, al	; Make PICs listen.
