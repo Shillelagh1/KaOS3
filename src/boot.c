@@ -6,8 +6,21 @@
 
 extern void _isr_heartbeat();
 
+#define VGA_MEMORY  0xB8000 
+uint16_t* terminal_buffer = (uint16_t*)VGA_MEMORY;
+
+int count = 0;
+int blink = 0;
+
 void heartbeat(){
-    Serial_SendString(0x3F8, "heartbeat\n");
+    count ++;
+    if(count > 10000){
+        count = 0;
+        blink = !blink;
+    }
+
+    terminal_buffer[0] = (blink ? 'X' : ' ' )| (uint16_t) 15 << 8;
+
     PIC_sendEOI(0);
 }
 
@@ -21,7 +34,7 @@ extern void boot_c_setup(){
 
     // Setup interval timer and heartbeat function
     SetupPIT(0, PIT_MD_RATE);
-    PIT_SetReload(0, 65535);
+    PIT_SetReload(0, 65);
     IDT_AssignISR(0x20, &_isr_heartbeat);
 
     __asm__ volatile ("sti;");
