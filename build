@@ -43,6 +43,6 @@ echo -e "\033[4;35m> Creating .iso\033[0;0m"
 mkdir -p tmp/iso/boot/grub
 cp bin/TOS3.bin tmp/iso/boot/TOS3.bin
 cp src/grub.cfg tmp/iso/boot/grub/grub.cfg
-grub-mkrescue -o bin/TOS3.iso tmp/iso |& :
+grub-mkrescue -o bin/TOS3.iso tmp/iso
 
 echo -e "\033[1;32m> Done\033[0;0m"
