@@ -29,12 +29,40 @@ void PIC_remap(int offset1, int offset2)
 	io_wait();
 
 	// Unmask both PICs.
-	outb(PIC1_DATA, 0);
-	outb(PIC2_DATA, 0);
+	outb(PIC1_DATA, 0xFF);
+	outb(PIC2_DATA, 0xFF);
 }
 
-static void PIC_sendEOI()
+void PIC_sendEOI()
 {
 	outb(PIC2_COMMAND,PIC_EOI);
 	outb(PIC1_COMMAND,PIC_EOI);
+}
+
+void IRQ_mask(uint8_t IRQline) {
+    uint16_t port;
+    uint8_t value;
+
+    if(IRQline < 8) {
+        port = PIC1_DATA;
+    } else {
+        port = PIC2_DATA;
+        IRQline -= 8;
+    }
+    value = inb(port) | (1 << IRQline);
+    outb(port, value);        
+}
+
+void PIC_unmask(uint8_t IRQline) {
+    uint16_t port;
+    uint8_t value;
+
+    if(IRQline < 8) {
+        port = PIC1_DATA;
+    } else {
+        port = PIC2_DATA;
+        IRQline -= 8;
+    }
+    value = inb(port) & ~(1 << IRQline);
+    outb(port, value);        
 }

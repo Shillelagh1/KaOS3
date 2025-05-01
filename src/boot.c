@@ -13,4 +13,5 @@ extern void boot_c_setup(){
     Serial_SendString(0x3F8, "== SERIAL 0 ==\n");
 
     SetupPIT(0, PIT_MD_RATE);
+    PIT_SetReload(0, 65535);
 }
