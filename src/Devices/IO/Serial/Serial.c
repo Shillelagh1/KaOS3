@@ -1,7 +1,17 @@
 #include "Serial.h"
 #include "../IOPort/IOPort.h"
 
+void Serial_SendString(uint16_t port, char* str){
+    for(int i = 0; 1; i++){
+        if(str[i] == 0){
+            return;
+        }
+        outb(port + SER_REG_TX, str[i]);
+    }
+}
+
 extern int SetupSerialPort(uint16_t port){
+
     outb(port + SER_REG_SCRATCPAD, SER_TESTNUM);
     if(inb(port + SER_REG_SCRATCPAD) != SER_TESTNUM){
         return -1;  // Scratchpad fail.
@@ -33,7 +43,6 @@ extern int SetupSerialPort(uint16_t port){
 
     // Set port to normal operatoin
     outb(port + SER_REG_MODEMCTL, SER_MODEM_DATAREADY | SER_MODEM_REQUESTTOSEND | SER_MODEM_OUT);
-    outb(port + SER_REG_TX, 'X');
 
     return 0;
 }
