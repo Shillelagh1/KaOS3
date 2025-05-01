@@ -12,7 +12,7 @@ static struct IDT idt;
 
 static struct Intdesc interrupt_table[IDT_NUM_VECTORS];
 
-static void IDT_AssignISR(int n, void* f){
+void IDT_AssignISR(int n, void* f){
     interrupt_table[n].offset0 = (int)f & 0xFFFF;
     interrupt_table[n].offset1 = (int)f >> 16;
     interrupt_table[n].ss = ISR_DEFAULT_SS;
@@ -21,7 +21,7 @@ static void IDT_AssignISR(int n, void* f){
     interrupt_table[n].present = 1;
 }
 
-extern void SetupIDT(){
+void SetupIDT(){
     ASSIGN_ERR_ISR(0);
     ASSIGN_ERR_ISR(1);
     ASSIGN_ERR_ISR(2);

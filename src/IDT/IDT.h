@@ -20,6 +20,6 @@ struct IDT{
     struct Intdesc* offset;
 } __attribute__((packed));
 
-extern void SetupIDT();
-static void IDT_AssignISR(int isrnum, void* func);
+void SetupIDT();
+void IDT_AssignISR(int isrnum, void* func);
 extern void _setIDTR(struct IDT*);

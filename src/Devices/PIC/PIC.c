@@ -28,14 +28,15 @@ void PIC_remap(int offset1, int offset2)
 	outb(PIC2_DATA, ICW4_8086);
 	io_wait();
 
-	// Unmask both PICs.
 	outb(PIC1_DATA, 0xFF);
 	outb(PIC2_DATA, 0xFF);
 }
 
-void PIC_sendEOI()
+void PIC_sendEOI(uint8_t irq)
 {
-	outb(PIC2_COMMAND,PIC_EOI);
+	if(irq >= 8)
+		outb(PIC2_COMMAND,PIC_EOI);
+	
 	outb(PIC1_COMMAND,PIC_EOI);
 }
 

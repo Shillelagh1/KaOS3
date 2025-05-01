@@ -32,4 +32,4 @@
 #define SER_DATA_BITS_8 3
 
 void Serial_SendString(uint16_t port, char* str);
-extern int SetupSerialPort(uint16_t port);
+int SetupSerialPort(uint16_t port);
