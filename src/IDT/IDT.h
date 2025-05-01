@@ -1,4 +1,4 @@
-#define IDT_NUM_VECTORS 22
+#define IDT_NUM_VECTORS 256
 
 #define ISR_DEFAULT_GATE_TYPE 0x0E
 #define ISR_DEFAULT_SS 0x08
@@ -21,4 +21,5 @@ struct IDT{
 } __attribute__((packed));
 
 extern void SetupIDT();
+static void IDT_AssignISR(int isrnum, void* func);
 extern void _setIDTR(struct IDT*);
