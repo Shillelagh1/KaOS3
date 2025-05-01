@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Compile all of the source files
-echo -e "\033[4;35m> Compiling\033[0;0m"
+echo -e "\033[4;35m> Compiling\033[0;0m\n"
 rm tmp -r -f
 mkdir tmp
 mkdir tmp/o
 
 find src -type f | while read fname; do
+    echo -e "\e[1A\e[2K\033[4;36m> $fname\033[0;0m"
     output_name=$(echo "$fname" | perl -pe 's|/|-|g; s|\.(?=.+)|_|g')
     output_file=$"tmp/o/$output_name.o"
     if [[ $fname =~ .+\.c$ ]]; then     # Compile C files
@@ -15,6 +16,7 @@ find src -type f | while read fname; do
         nasm -felf32 $fname -o $output_file
     fi
 done;
+echo -e "\e[1A\e[2K\e[1A"
 
 # Link object files
 echo -e "\033[4;35m> Linking\033[0;0m"
@@ -28,6 +30,7 @@ if [ $? == 0 ]; then
     echo -e "\033[0;32m> Multiboot Confirmed\033[0;0m"
 else
     echo -e "\033[0;31m> Multiboot Failed\033[0;0m"
+    exit 1
 fi
 
 # Extract symbols
@@ -40,6 +43,6 @@ echo -e "\033[4;35m> Creating .iso\033[0;0m"
 mkdir -p tmp/iso/boot/grub
 cp bin/TOS3.bin tmp/iso/boot/TOS3.bin
 cp src/grub.cfg tmp/iso/boot/grub/grub.cfg
-grub-mkrescue -o bin/TOS3.iso tmp/iso
+grub-mkrescue -o bin/TOS3.iso tmp/iso |& :
 
-echo -e "\033[4;35m> Done\033[0;0m"
+echo -e "\033[1;32m> Done\033[0;0m"
