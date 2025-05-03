@@ -31,12 +31,3 @@ section .text
         call boot_c_setup
     .e:
         jmp .e
-    global _isr_heartbeat
-        _isr_heartbeat:
-        cli
-        pushad
-        extern heartbeat
-        call heartbeat
-        popad
-        sti
-        iret
