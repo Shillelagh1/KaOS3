@@ -1,8 +1,12 @@
 #include "Devices/IO/Serial/Serial.h"
 #include "Devices/PIC/PIC.h"
 #include "Devices/PIT/PIT.h"
+#include "Services/VGAText/VGAText.h"
 #include "GDT/GDT.h"
 #include "IDT/IDT.h"
+#include "Services/Multiboot/multiboot.h"
+
+#define KAOS_SPLASH "+================================+\n|                                |\n| ##\\  ##\\#####\\ ######\\#######\\ |\n| ##| ##/##/==####/===####/====/ |\n| #####/ #########|   #########\\ |\n| ##/=##\\##/==####|   ##\\====##| |\n| ##|  ####|  ##\\######/#######| |\n| \\=/  \\=\\=/  \\=/\\=====/\\======/ |\n|                                |\n+================================+\n"
 
 extern void _isr_heartbeat();
 
@@ -11,7 +15,7 @@ void heartbeat(){
     PIC_sendEOI(0);
 }
 
-extern void boot_c_setup(){
+extern void boot_c_setup(multiboot_info_t* multiboot_info){
     SetupGDT();
     SetupIDT();
     PIC_remap(0x20, 0x28);
@@ -27,4 +31,8 @@ extern void boot_c_setup(){
     __asm__ volatile ("sti;");
 
     PIC_unmask(0);
+
+    VGAT_color(VGA_BLACK, VGA_RED);
+    VGAT_fill(' ');
+    VGAT_glyph(22,1,KAOS_SPLASH);
 }

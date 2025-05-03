@@ -28,6 +28,7 @@ section .text
     _start:
         cli
         
+        push ebx
         call boot_c_setup
     .e:
         jmp .e
