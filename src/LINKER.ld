@@ -1,5 +1,5 @@
 ENTRY(_start)
-OUTPUT(bin/TOS3.bin)
+OUTPUT(bin/KaOS.bin)
 
 SECTIONS
 {

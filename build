@@ -25,7 +25,7 @@ mkdir bin
 $HOME/opt/cross/bin/i686-elf-gcc -g -T src/LINKER.ld -ffreestanding -O2 -nostdlib -lgcc tmp/o/*
 
 # Verify multiboot 
-grub-file --is-x86-multiboot bin/TOS3.bin
+grub-file --is-x86-multiboot bin/KaOS.bin
 if [ $? == 0 ]; then
     echo -e "\033[0;32m> Multiboot Confirmed\033[0;0m"
 else
@@ -35,14 +35,14 @@ fi
 
 # Extract symbols
 echo -e "\033[4;35m> Generating symbols\033[0;0m"
-objcopy --only-keep-debug bin/TOS3.bin bin/TOS3.sym
-objcopy --strip-debug bin/TOS3.bin
+objcopy --only-keep-debug bin/KaOS.bin bin/KaOS.sym
+objcopy --strip-debug bin/KaOS.bin
 
 # Make an .iso
 echo -e "\033[4;35m> Creating .iso\033[0;0m"
 mkdir -p tmp/iso/boot/grub
-cp bin/TOS3.bin tmp/iso/boot/TOS3.bin
+cp bin/KaOS.bin tmp/iso/boot/KaOS.bin
 cp src/grub.cfg tmp/iso/boot/grub/grub.cfg
-grub-mkrescue -o bin/TOS3.iso tmp/iso
+grub-mkrescue -o bin/KaOS.iso tmp/iso
 
 echo -e "\033[1;32m> Done\033[0;0m"
