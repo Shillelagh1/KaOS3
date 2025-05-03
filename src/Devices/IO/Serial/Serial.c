@@ -11,7 +11,6 @@ void Serial_SendString(uint16_t port, char* str){
 }
 
 int SetupSerialPort(uint16_t port){
-
     outb(port + SER_REG_SCRATCPAD, SER_TESTNUM);
     if(inb(port + SER_REG_SCRATCPAD) != SER_TESTNUM){
         return -1;  // Scratchpad fail.
