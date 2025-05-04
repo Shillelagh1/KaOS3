@@ -4,12 +4,14 @@ OUTPUT(bin/KaOS.bin)
 SECTIONS
 {
 	. = 2M;
+	_ROMBEGIN = .;
 
 	.text BLOCK(4K) : ALIGN(4K)
 	{
-		_kernel_start = .;
 		*(.multiboot)
+		_CODEBEGIN = .;
 		*(.text)
+		_CODEEND = .;
 	}
 
 	.data BLOCK(4K) : ALIGN(4K)
@@ -23,5 +25,5 @@ SECTIONS
 		*(.bss)
 	}
 
-	_KERNELEND = .;
+	_ROMEND = .;
 }

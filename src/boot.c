@@ -11,6 +11,12 @@
 
 extern void _isr_heartbeat();
 
+extern char _ROMBEGIN;
+extern char _ROMEND;
+extern char _CODEBEGIN;
+extern char _CODEEND;
+extern char _stack_top;
+
 void heartbeat(){
     Serial_SendString(0x3F8, "heartbeat\n");
     PIC_sendEOI(0);
@@ -60,7 +66,21 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     VGAT_write(30, 11, KAOS_VERSION);
 
     // Memory info
-    VGAT_write(1,13,"Memory: ");
+    VGAT_write(1,13,"|-Available: ");
     VGAT_print(itoa_dec(mem_count / (1024*1024)));
     VGAT_print(" MiB");
+
+    VGAT_write(1,14,"|-Memory Used: ");
+    VGAT_print(itoa_dec(&_ROMEND - &_ROMBEGIN));
+    VGAT_print(" B");
+
+    VGAT_write(1,15,"|-Kernel Code Size: ");
+    VGAT_print(itoa_dec(&_CODEEND - &_CODEBEGIN));
+    VGAT_print(" B");
+
+    int stack_ptr;
+    __asm__ volatile ("mov %%esp, %0" : "=g"(stack_ptr) : : );
+    VGAT_write(1,16,"|-Stack Used in Init: ");
+    VGAT_print(itoa_dec((int)&_stack_top - stack_ptr));
+    VGAT_print(" B");
 }

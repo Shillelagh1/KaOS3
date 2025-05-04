@@ -18,16 +18,18 @@ section .multiboot
 section .bss
     ; Create a temporary stack
 	align 16
-	stack_bottom:
+    global _stack_top
+	_stack_bottom:
 	    resb 16384 ; 16 KiB
-	    stack_top:
+	    _stack_top:
 
 section .text
     ; Entry point for the kernel
     global _start
     _start:
         cli
-        
+        mov esp, _stack_top
+        mov ebp, _stack_top
         push ebx
         call boot_c_setup
     .e:
