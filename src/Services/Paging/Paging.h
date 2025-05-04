@@ -31,7 +31,7 @@ struct page_table_entry {
 
 #define CREATE_PAGEDIR(__name) struct page_directory_entry page_dir___name[1024] __attribute__((aligned(4096)))
 #define CREATE_PAGETABLE(__name, __n) struct page_table_entry page_table___name___n[1024] __attribute__((aligned(4096)))
-#define CREATE_FULL_PAGETABLE(__name) struct page_table_entry page_table___name[1024 * 1024] __attribute__((aligned(4096)))
+#define CREATE_MANY_PAGETABLE(__name, __count) struct page_table_entry page_table___name[1024 * __count] __attribute__((aligned(4096)))
 
 void PG_ZeroizePagedir(struct page_directory_entry* directory);
 void PG_ZeroizePagetable(struct page_table_entry* table);

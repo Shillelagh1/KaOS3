@@ -20,7 +20,7 @@ extern char _CODEEND;
 extern char _stack_top;
 
 CREATE_PAGEDIR(kernel);
-CREATE_FULL_PAGETABLE(kernel);
+CREATE_MANY_PAGETABLE(kernel, 1024);
 
 void heartbeat(){
     Serial_SendString(0x3F8, "heartbeat\n");
