@@ -1,10 +1,12 @@
 #include "Devices/IO/Serial/Serial.h"
 #include "Devices/PIC/PIC.h"
 #include "Devices/PIT/PIT.h"
-#include "Services/VGAText/VGAText.h"
+
 #include "GDT/GDT.h"
 #include "IDT/IDT.h"
+#include "Services/VGAText/VGAText.h"
 #include "Services/Multiboot/multiboot.h"
+#include "Services/Paging/Paging.h"
 
 #define KAOS_SPLASH "+================================+\n|                                |\n| ##\\  ##\\#####\\ ######\\#######\\ |\n| ##| ##/##/==####/===####/====/ |\n| #####/ #########|   #########\\ |\n| ##/=##\\##/==####|   ##\\====##| |\n| ##|  ####|  ##\\######/#######| |\n| \\=/  \\=\\=/  \\=/\\=====/\\======/ |\n|                                |\n+================================+\n"
 #define KAOS_VERSION "Version 0.1.0"
@@ -16,6 +18,9 @@ extern char _ROMEND;
 extern char _CODEBEGIN;
 extern char _CODEEND;
 extern char _stack_top;
+
+CREATE_PAGEDIR(kernel);
+CREATE_FULL_PAGETABLE(kernel);
 
 void heartbeat(){
     Serial_SendString(0x3F8, "heartbeat\n");
