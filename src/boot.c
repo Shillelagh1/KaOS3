@@ -20,7 +20,6 @@ extern char _CODEEND;
 extern char _stack_top;
 
 CREATE_PAGEDIR(kernel);
-CREATE_MANY_PAGETABLE(kernel, 1024);
 
 void heartbeat(){
     Serial_SendString(0x3F8, "heartbeat\n");
@@ -32,8 +31,14 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     SetupGDT();
     SetupIDT();
     PIC_remap(0x20, 0x28);
-    
+
+    PG_ZeroizePagedir(page_dir_kernel);
+    PG_ConfigurePagedirEntry(&page_dir_kernel[0], PDE_PRESENT | PDE_RW, 0, 0);
+    PG_ConfigurePagedirEntry(&page_dir_kernel[1], PDE_PRESENT | PDE_RW | PDE_US, 0, 0);
+    PG_EnablePaging(page_dir_kernel);
+
     SetupSerialPort(0x3F8);
+    Serial_SendString(0x3F8, "==== SERCOM0 ====");
 
     // Setup interval timer and heartbeat function
     SetupPIT(0, PIT_MD_RATE);
