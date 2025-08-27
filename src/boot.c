@@ -33,8 +33,8 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     PIC_remap(0x20, 0x28);
 
     PG_ZeroizePagedir(page_dir_kernel);
-    PG_ConfigurePagedirEntry(&page_dir_kernel[0], PDE_PRESENT | PDE_RW, 0, 0);
-    PG_ConfigurePagedirEntry(&page_dir_kernel[1], PDE_PRESENT | PDE_RW | PDE_US, 0, 0);
+    PG_IdentityConfigurePagedirEntry(&page_dir_kernel[0], PDE_PRESENT | PDE_RW, 0, 0);
+    PG_IdentityConfigurePagedirEntry(&page_dir_kernel[1], PDE_PRESENT | PDE_RW | PDE_US, 0, 0);
     PG_EnablePaging(page_dir_kernel);
 
     SetupSerialPort(0x3F8);
