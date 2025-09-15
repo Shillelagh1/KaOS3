@@ -1,5 +1,6 @@
 #include "Devices/IO/Serial/Serial.h"
 #include "Devices/PIC/PIC.h"
+#include "Devices/PIC/IRQ.h"
 #include "Devices/PIT/PIT.h"
 
 #include "GDT/GDT.h"
@@ -10,6 +11,8 @@
 
 #define KAOS_SPLASH "+================================+\n|                                |\n| ##\\  ##\\#####\\ ######\\#######\\ |\n| ##| ##/##/==####/===####/====/ |\n| #####/ #########|   #########\\ |\n| ##/=##\\##/==####|   ##\\====##| |\n| ##|  ####|  ##\\######/#######| |\n| \\=/  \\=\\=/  \\=/\\=====/\\======/ |\n|                                |\n+================================+\n"
 #define KAOS_VERSION "Version 0.1.0"
+
+#define PIC0_OFFSET 0x20
 
 extern void _isr_heartbeat();
 
@@ -30,7 +33,7 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     // Do tons of setup
     SetupGDT();
     SetupIDT();
-    PIC_remap(0x20, 0x28);
+    PIC_remap(PIC0_OFFSET, PIC0_OFFSET + 8);
 
     PG_ZeroizePagedir(page_dir_kernel);
     PG_IdentityConfigurePagedirEntry(&page_dir_kernel[0], PDE_PRESENT | PDE_RW, 0, 0);
@@ -43,7 +46,7 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     // Setup interval timer and heartbeat function
     SetupPIT(0, PIT_MD_RATE);
     PIT_SetReload(0, 65535);
-    IDT_AssignISR(0x20, &_isr_heartbeat);
+    IDT_AssignISR(PIC0_OFFSET + IRQ_PIT, &_isr_heartbeat);
 
     __asm__ volatile ("sti;");
 

@@ -33,6 +33,7 @@ section .text
         push ebx
         call boot_c_setup
     .e:
+        hlt
         jmp .e
     global _isr_heartbeat
         _isr_heartbeat:

@@ -1,0 +1,12 @@
+#define IRQ_PIT 0
+#define IRQ_KB 1
+#define IRQ_COM2 3
+#define IRQ_COM1 4
+#define IRQ_LPT2 5
+#define IRQ_FLOPPY 6
+#define IRQ_LPT1 7
+#define IRQ_RTC 8
+#define IRQ_PS2_MOUSE 12
+#define IRQ_FPU 13
+#define IRQ_ATA0 14
+#define IRQ_ATA1 15
