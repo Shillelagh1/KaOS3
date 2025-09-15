@@ -32,28 +32,34 @@ void heartbeat(){
 }
 
 extern void boot_c_setup(multiboot_info_t* mbd){
-    // Do tons of setup
+    // Setup tables and interrupts
     SetupGDT();
     SetupIDT();
     PIC_remap(PIC0_OFFSET, PIC0_OFFSET + 8);
 
+    // Setup kernel paging
     PG_ZeroizePagedir(page_dir_kernel);
     PG_IdentityConfigurePagedirEntry(&page_dir_kernel[0], PDE_PRESENT | PDE_RW, 0, 0);
     PG_IdentityConfigurePagedirEntry(&page_dir_kernel[1], PDE_PRESENT | PDE_RW | PDE_US, 0, 0);
     PG_EnablePaging(page_dir_kernel);
 
-    SetupSerialPort(0x3F8);
-    Serial_SendString(0x3F8, "==== SERCOM0 ====");
+    // Do hardware configuraiton
+    #pragma region 
+    SetupSerialPort(COM0);
+    Serial_SendString(COM0, "==== SERCOM0 ====");
 
     // Setup interval timer and heartbeat function
     SetupPIT(0, PIT_MD_RATE);
     PIT_SetReload(0, 65535);
     IDT_AssignISR(PIC0_OFFSET + IRQ_PIT, &_isr_heartbeat);
 
-    __asm__ volatile ("sti;");
+    #pragma endregion
 
+    __asm__ volatile ("sti;");
     PIC_unmask(0);
 
+    // Perform hardware evaluation
+    #pragma region 
     // Perform memory enumeration.
     unsigned long int mem_count = 0;
     if (mbd->flags & 1 << 6){
@@ -77,8 +83,11 @@ extern void boot_c_setup(multiboot_info_t* mbd){
         COM_STATUS[i] = CheckSerialPort(COM_ADDR[i]);
     }
 
+    #pragma endregion
+
     // Create the splash screen
     // Splash
+    #pragma region 
     VGAT_color(VGA_BLACK, VGA_RED);
     VGAT_fill(' ');
     VGAT_glyph(22,1,KAOS_SPLASH);
@@ -118,4 +127,6 @@ extern void boot_c_setup(multiboot_info_t* mbd){
                 VGAT_print(": FAIL"); break;
         }
     }
+    
+    #pragma endregion
 }
