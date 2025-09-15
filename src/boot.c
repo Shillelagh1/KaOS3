@@ -104,7 +104,7 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     VGAT_print(itoa_dec((int)&_stack_top - stack_ptr));
     VGAT_print(" B");
 
-    // COM port status
+    // Show COM port status
     for(int i = 0; i < 8; i++){
         VGAT_color(VGA_BLACK, VGA_RED);
         VGAT_write(1, 2 + i,"|-COM");
