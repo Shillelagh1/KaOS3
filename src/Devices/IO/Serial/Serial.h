@@ -31,17 +31,17 @@
 #define SER_DATA_BITS_7 2
 #define SER_DATA_BITS_8 3
 
-#define COM1 0x3F8
-#define COM2 0x2F8
-#define COM3 0x3E8
-#define COM4 0x2E8
-#define COM5 0x5F8
-#define COM6 0x4F8
-#define COM7 0x5E8
-#define COM8 0x4E8
+#define COM0 0x3F8
+#define COM1 0x2F8
+#define COM2 0x3E8
+#define COM3 0x2E8
+#define COM4 0x5F8
+#define COM5 0x4F8
+#define COM6 0x5E8
+#define COM7 0x4E8
 
 static const uint16_t COM_ADDR[8]={
-    COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8
+    COM0, COM1, COM2, COM3, COM4, COM5, COM6, COM7
 };
 
 void Serial_SendString(uint16_t port, char* str);

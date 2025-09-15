@@ -86,7 +86,6 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     #pragma endregion
 
     // Create the splash screen
-    // Splash
     #pragma region 
     VGAT_color(VGA_BLACK, VGA_RED);
     VGAT_fill(' ');
