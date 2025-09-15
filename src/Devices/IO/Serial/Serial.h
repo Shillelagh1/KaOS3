@@ -40,5 +40,10 @@
 #define COM7 0x5E8
 #define COM8 0x4E8
 
+static const uint16_t COM_ADDR[8]={
+    COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8
+};
+
 void Serial_SendString(uint16_t port, char* str);
 int SetupSerialPort(uint16_t port);
+int CheckSerialPort(uint16_t port);

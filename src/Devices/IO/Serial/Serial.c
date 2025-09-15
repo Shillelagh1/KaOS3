@@ -45,3 +45,22 @@ int SetupSerialPort(uint16_t port){
 
     return 0;
 }
+
+int CheckSerialPort(uint16_t port){
+    outb(port + SER_REG_SCRATCPAD, SER_TESTNUM);
+    if(inb(port + SER_REG_SCRATCPAD) != SER_TESTNUM){
+        return 1;  // Scratchpad fail.
+    }
+    
+    // Unset all interrupts
+    outb(port + SER_REG_INTERRUPT_EN, 0);
+
+    // Loopback test
+    outb(port + SER_REG_MODEMCTL, SER_MODEM_REQUESTTOSEND | SER_MODEM_OUT | SER_MODEM_LOOP);
+    outb(port + SER_REG_TX, SER_TESTNUM);
+    if(inb(port + SER_REG_RX) != SER_TESTNUM){
+        return 2; // Loopback fail.
+    }
+
+    return 0;
+}

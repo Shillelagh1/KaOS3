@@ -22,6 +22,8 @@ extern char _CODEBEGIN;
 extern char _CODEEND;
 extern char _stack_top;
 
+uint8_t COM_STATUS[8];
+
 CREATE_PAGEDIR(kernel);
 
 void heartbeat(){
@@ -70,6 +72,11 @@ extern void boot_c_setup(multiboot_info_t* mbd){
         mem_count = mbd->mem_upper - mbd->mem_lower;
     }
 
+    // Perform COM port checks.
+    for (int i = 0; i < 8; i++){
+        COM_STATUS[i] = CheckSerialPort(COM_ADDR[i]);
+    }
+
     // Create the splash screen
     // Splash
     VGAT_color(VGA_BLACK, VGA_RED);
@@ -96,4 +103,19 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     VGAT_write(1,16,"|-Stack Used in Init: ");
     VGAT_print(itoa_dec((int)&_stack_top - stack_ptr));
     VGAT_print(" B");
+
+    // COM port status
+    for(int i = 0; i < 8; i++){
+        VGAT_color(VGA_BLACK, VGA_RED);
+        VGAT_write(1, 2 + i,"|-COM");
+        VGAT_print(itoa_dec(i));
+        switch(COM_STATUS[i]){
+            case 0:
+                VGAT_print(": OK"); break;
+            case 1:
+                VGAT_print(": "); break;
+            case 2:
+                VGAT_print(": FAIL"); break;
+        }
+    }
 }
