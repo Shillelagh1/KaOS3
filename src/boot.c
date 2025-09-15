@@ -27,7 +27,7 @@ uint8_t COM_STATUS[8];
 CREATE_PAGEDIR(kernel);
 
 void heartbeat(){
-    Serial_SendString(0x3F8, "heartbeat\n");
+    // Serial_SendString(COM0, "heartbeat\n");
     PIC_sendEOI(0);
 }
 
@@ -46,7 +46,7 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     // Do hardware configuraiton
     #pragma region 
     SetupSerialPort(COM0);
-    Serial_SendString(COM0, "==== SERCOM0 ====");
+    Serial_SendString(COM0, "==== SERCOM0 ====\n");
 
     // Setup interval timer and heartbeat function
     SetupPIT(0, PIT_MD_RATE);
@@ -56,11 +56,12 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     #pragma endregion
 
     __asm__ volatile ("sti;");
-    PIC_unmask(0);
+    PIC_unmask(IRQ_PIT);
 
     // Perform hardware evaluation
     #pragma region 
     // Perform memory enumeration.
+    Serial_SendString(COM0, "Enumerating Memory...\n");
     unsigned long int mem_count = 0;
     if (mbd->flags & 1 << 6){
         for(unsigned int i = 0; i < mbd->mmap_length; 
@@ -71,6 +72,10 @@ extern void boot_c_setup(multiboot_info_t* mbd){
 
             if(mmmt->type == 1) {
                 mem_count += (mmmt->len);
+                Serial_SendString(COM0, itoa_dec(mmmt->addr_low));
+                Serial_SendString(COM0, ": ");
+                Serial_SendString(COM0, itoa_dec(mmmt->len / 1024));
+                Serial_SendString(COM0, " kB \n");
             }
         }
     }
@@ -81,6 +86,7 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     // Perform COM port checks.
     for (int i = 0; i < 8; i++){
         COM_STATUS[i] = CheckSerialPort(COM_ADDR[i]);
+        SetupSerialPort(COM_ADDR[i]);
     }
 
     #pragma endregion
