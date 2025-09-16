@@ -72,7 +72,8 @@ extern void boot_c_setup(multiboot_info_t* mbd){
 
             if(mmmt->type == 1) {
                 mem_count += (mmmt->len);
-                Serial_SendString(COM0, itoa_dec(mmmt->addr_low));
+                Serial_SendString(COM0, "0x");
+                Serial_SendString(COM0, itoa(mmmt->addr_low, 16));
                 Serial_SendString(COM0, ": ");
                 Serial_SendString(COM0, itoa_dec(mmmt->len / 1024));
                 Serial_SendString(COM0, " kB \n");

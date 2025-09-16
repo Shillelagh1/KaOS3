@@ -26,3 +26,4 @@ void VGAT_print(char* str);
 void VGAT_fill(char c);
 void VGAT_color(int fg, int bg);
 char* itoa_dec(int i);
+char* itoa(int i, int base);
