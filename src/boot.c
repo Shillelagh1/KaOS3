@@ -13,8 +13,11 @@
 #define KAOS_VERSION "Version 0.1.0"
 
 #define PIC0_OFFSET 0x20
+#define KERNEL_PAGE_COUNT 2
+#define FIRST_KERNEL_PAGE (uint32_t)(PAGE_DIR_LEN - KERNEL_PAGE_COUNT)
 
 extern void _isr_heartbeat();
+extern void _enter_higher_half(uint32_t offset);
 
 extern char _ROMBEGIN;
 extern char _ROMEND;
@@ -39,9 +42,12 @@ extern void boot_c_setup(multiboot_info_t* mbd){
 
     // Setup kernel paging
     PG_ZeroizePagedir(page_dir_kernel);
-    PG_IdentityConfigurePagedirEntry(&page_dir_kernel[0], PDE_PRESENT | PDE_RW, 0, 0);
-    PG_IdentityConfigurePagedirEntry(&page_dir_kernel[1], PDE_PRESENT | PDE_RW | PDE_US, 0, 0);
+    for(int i = 0; i < KERNEL_PAGE_COUNT; i++){
+        PG_ConfigurePagedirEntry(&page_dir_kernel[i], PDE_PRESENT | PDE_RW, 0, i);  // Identity
+        PG_ConfigurePagedirEntry(&page_dir_kernel[(PAGE_DIR_LEN - KERNEL_PAGE_COUNT) + i], PDE_PRESENT | PDE_US, 0, i);  // Higher Half
+    }
     PG_EnablePaging(page_dir_kernel);
+    _enter_higher_half(FIRST_KERNEL_PAGE * PAGE_WIDTH);
 
     // Do hardware configuraiton
     #pragma region 

@@ -18,7 +18,7 @@ void PG_ZeroizePagedir(struct page_directory_entry* directory){
     }
 }
 
-void PG_IdentityConfigurePagedirEntry(struct page_directory_entry* entry, int attr, int global, int pageNumber){
+void PG_ConfigurePagedirEntry(struct page_directory_entry* entry, int attr, int global, int pageNumber){
     entry->attr = attr;
     entry->one = 1;
     entry->global = global;

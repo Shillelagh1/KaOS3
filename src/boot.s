@@ -35,6 +35,7 @@ section .text
     .e:
         hlt
         jmp .e
+
     global _isr_heartbeat
         _isr_heartbeat:
         cli
@@ -44,3 +45,12 @@ section .text
         popad
         sti
         iret
+
+    global _enter_higher_half
+        _enter_higher_half:
+        mov eax, [esp + 4]  ; Offset to jump to
+        mov edi, .dest
+        add edi, eax        ; Calculate the target address
+        .dest:
+        jmp edi
+        ret                 ; Perform jump and return to setup

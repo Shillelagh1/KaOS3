@@ -3,7 +3,7 @@ OUTPUT(bin/KaOS.bin)
 
 SECTIONS
 {
-	. = 2M;
+	. = 1M;
 	_ROMBEGIN = .;
 
 	.text BLOCK(4K) : ALIGN(4K)

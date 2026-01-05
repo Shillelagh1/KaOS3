@@ -1,5 +1,6 @@
 #define PAGE_DIR_LEN 1024
-#define PAGE_WIDTH 4194304
+#define PAGE_DIR_MAX (PAGE_DIR_LEN - 1)
+#define PAGE_WIDTH 0x400000
 
 #define PDE_PRESENT     1
 #define PDE_RW          2
@@ -20,9 +21,9 @@ struct page_directory_entry {
     unsigned int addr_low  : 10;
 }   __attribute__((packed));
 
-#define CREATE_PAGEDIR(__name) struct page_directory_entry page_dir_##__name[1024] __attribute__((aligned(4096)))
+#define CREATE_PAGEDIR(__name) struct page_directory_entry page_dir_##__name[PAGE_DIR_LEN] __attribute__((aligned(4096)))
 
 void PG_ZeroizePagedir(struct page_directory_entry* directory);
 void PG_ZeroizePagedirEntry(struct page_directory_entry* directoryEntry);
-void PG_IdentityConfigurePagedirEntry(struct page_directory_entry* entry, int attr, int global, int pageNumber);
+void PG_ConfigurePagedirEntry(struct page_directory_entry* entry, int attr, int global, int physicalPageNumber);
 void PG_EnablePaging(struct page_directory_entry* directory);
