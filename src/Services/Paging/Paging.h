@@ -27,3 +27,4 @@ void PG_ZeroizePagedir(struct page_directory_entry* directory);
 void PG_ZeroizePagedirEntry(struct page_directory_entry* directoryEntry);
 void PG_ConfigurePagedirEntry(struct page_directory_entry* entry, int attr, int global, int physicalPageNumber);
 void PG_EnablePaging(struct page_directory_entry* directory);
+void PG_FlushTLB();

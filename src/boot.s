@@ -46,11 +46,15 @@ section .text
         sti
         iret
 
+
+    ; ENTER HIGHER HALF:
+    ; Instead of jumping to a *new* higher half address (dest) instead modify the 
+    ; return address for _enter_higher_half to incorporate the higher half offset
+
     global _enter_higher_half
         _enter_higher_half:
         mov eax, [esp + 4]  ; Offset to jump to
-        mov edi, .dest
+        mov edi, [esp]      ; Store the return address
         add edi, eax        ; Calculate the target address
-        .dest:
-        jmp edi
-        ret                 ; Perform jump and return to setup
+        mov [esp], edi      ; Store the new (offset) return address in the stack
+        ret                 ; Return to setup including the new offset

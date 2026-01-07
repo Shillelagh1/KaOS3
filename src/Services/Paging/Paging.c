@@ -34,3 +34,8 @@ extern void _pg_enable_paging(struct page_directory_entry*);
 void PG_EnablePaging(struct page_directory_entry* directory){
     _pg_enable_paging(directory);
 }
+
+void PG_FlushTLB(){
+    __asm__("movl %cr3, %ecx");
+    __asm__("movl %ecx, %cr3");
+}

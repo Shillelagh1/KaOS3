@@ -16,6 +16,8 @@
 #define KERNEL_PAGE_COUNT 2
 #define FIRST_KERNEL_PAGE (uint32_t)(PAGE_DIR_LEN - KERNEL_PAGE_COUNT)
 
+#define VIRTUAL_HIGHERHALF_OFFSET FIRST_KERNEL_PAGE * PAGE_WIDTH
+
 extern void _isr_heartbeat();
 extern void _enter_higher_half(uint32_t offset);
 
@@ -47,7 +49,12 @@ extern void boot_c_setup(multiboot_info_t* mbd){
         PG_ConfigurePagedirEntry(&page_dir_kernel[(PAGE_DIR_LEN - KERNEL_PAGE_COUNT) + i], PDE_PRESENT | PDE_US, 0, i);  // Higher Half
     }
     PG_EnablePaging(page_dir_kernel);
-    _enter_higher_half(FIRST_KERNEL_PAGE * PAGE_WIDTH);
+    _enter_higher_half(VIRTUAL_HIGHERHALF_OFFSET);
+
+    // Destroy the identity mapping (Move fully to higher half)
+    for(int i = 0; i < KERNEL_PAGE_COUNT; i++){
+        // PG_ConfigurePagedirEntry(&page_dir_kernel[i], 0, 0, 0);  // Identity
+    }
 
     // Do hardware configuraiton
     #pragma region 
