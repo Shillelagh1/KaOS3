@@ -23,14 +23,51 @@ section .bss
 	    resb 16384 ; 16 KiB
 	    _stack_top:
 
+    ; We will need to create a higher half stack as well hngnghngtnrhnrg
+
+section .data
+    align 16
+    _launcher_gdt_segments:
+    ; Null Segdesc
+    dq 0x0000000000000000
+    ; Code Segdesc
+    dq 0x00cf9f000000ffff
+    ; Data Segdesc
+    dq 0x00cf93000000ffff
+
+    _launcher_gdt:
+    dd _launcher_gdt_segments
+    dw 0x17 ; dec 23. Size of the GDT - 1 (3 * 8 - 1)
+    
+
 section .text
     ; Entry point for the kernel
     global _start
     _start:
         cli
+        ; Setup the stack
         mov esp, _stack_top
         mov ebp, _stack_top
         push ebx
+
+        ; Setup the Launcher GDT
+        mov eax, _launcher_gdt
+        lgdt [eax]
+        hlt
+
+        ; Load segment registers
+        jmp 0x08:.CS
+        .CS:
+        mov ax, 0x10
+        mov ds, ax
+        mov es, ax
+        mov fs, ax
+        mov gs, ax
+        mov ss, ax
+        ret
+
+        ; Populate the page table 
+
         call boot_c_setup
     .e:
         hlt
