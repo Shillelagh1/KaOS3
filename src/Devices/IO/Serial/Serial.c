@@ -1,6 +1,8 @@
 #include "Serial.h"
 #include "../IOPort/IOPort.h"
 
+// Send a cstring to the serial (COM) port defined by the port 'port'.
+// Port refers to the actual IO port address. Use COM0-COM7 in Serial.h
 void Serial_SendString(uint16_t port, char* str){
     for(int i = 0; 1; i++){
         if(str[i] == 0){
@@ -10,6 +12,8 @@ void Serial_SendString(uint16_t port, char* str){
     }
 }
 
+// Initialize a COM port defined by the port 'port'
+// Port refers to the actual IO port address. Use COM0-COM7 in Serial.h
 int SetupSerialPort(uint16_t port){
     outb(port + SER_REG_SCRATCPAD, SER_TESTNUM);
     if(inb(port + SER_REG_SCRATCPAD) != SER_TESTNUM){
@@ -46,6 +50,11 @@ int SetupSerialPort(uint16_t port){
     return 0;
 }
 
+// Test the behaviour of the port given by 'port'
+// Returns 0 if the port is OKAY,
+// Returns 1 if the scratchpad of the port fails (Often indicates a missing port)
+// Returns 2 if the loopback test of the port fails (Often indicates a malconfigured port)
+// Port refers to the actual IO port address. Use COM0-COM7 in Serial.h
 int CheckSerialPort(uint16_t port){
     outb(port + SER_REG_SCRATCPAD, SER_TESTNUM);
     if(inb(port + SER_REG_SCRATCPAD) != SER_TESTNUM){

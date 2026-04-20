@@ -36,10 +36,13 @@ section .data
     dq 0x00cf93000000ffff
 
     _launcher_gdt:
-    dd _launcher_gdt_segments
     dw 0x17 ; dec 23. Size of the GDT - 1 (3 * 8 - 1)
+    dd _launcher_gdt_segments
+    _launcher_paging_low:
+    dd 0x000000a3
+    _launcher_paging_high:
+    dd 0x00400083
     
-
 section .text
     ; Entry point for the kernel
     global _start
@@ -51,12 +54,9 @@ section .text
         push ebx
 
         ; Setup the Launcher GDT
-        mov eax, _launcher_gdt
+        mov eax, _launcher_gdt  ; Load GDTR
         lgdt [eax]
-        hlt
-
-        ; Load segment registers
-        jmp 0x08:.CS
+        jmp 0x08:.CS            ; Load segmeat registers
         .CS:
         mov ax, 0x10
         mov ds, ax
@@ -64,7 +64,6 @@ section .text
         mov fs, ax
         mov gs, ax
         mov ss, ax
-        ret
 
         ; Populate the page table 
 

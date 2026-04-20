@@ -1,3 +1,4 @@
+// Addresses of hardware IRQs
 #define IRQ_PIT 0
 #define IRQ_KB 1
 #define IRQ_COM2 3

@@ -1,5 +1,6 @@
 #include <stdint.h>
 
+// Register OFFSETS for IOPorts
 #define SER_REG_RX 0 // R
 #define SER_REG_TX 0 // W
 #define SER_REG_INTERRUPT_EN 1 // RW
@@ -13,6 +14,7 @@
 #define SER_REG_MODEMSTAT 6 // R
 #define SER_REG_SCRATCPAD 7 // RW
 
+// Configuration constants
 #define SER_TESTNUM 0x55
 #define SER_DIVISOR 128
 #define SER_DLAB_SET 0x80
@@ -21,6 +23,7 @@
 #define SER_STOP_BITS 0 // 1 Stop bit
 #define SER_FIFO 0xC7
 
+// Modem status
 #define SER_MODEM_DATAREADY 1
 #define SER_MODEM_REQUESTTOSEND 2
 #define SER_MODEM_OUT 7 
@@ -31,6 +34,7 @@
 #define SER_DATA_BITS_7 2
 #define SER_DATA_BITS_8 3
 
+// IOPorts typically associated with given COM ports
 #define COM0 0x3F8
 #define COM1 0x2F8
 #define COM2 0x3E8
@@ -40,10 +44,22 @@
 #define COM6 0x5E8
 #define COM7 0x4E8
 
+// Array which may be used to access the IOPort address associated with some COM port
 static const uint16_t COM_ADDR[8]={
     COM0, COM1, COM2, COM3, COM4, COM5, COM6, COM7
 };
 
+// Send a cstring to the serial (COM) port defined by the port 'port'.
+// Port refers to the actual IO port address. Use COM0-COM7 in Serial.h
 void Serial_SendString(uint16_t port, char* str);
+
+// Initialize a COM port defined by the port 'port'
+// Port refers to the actual IO port address. Use COM0-COM7 in Serial.h
 int SetupSerialPort(uint16_t port);
+
+// Test the behaviour of the port given by 'port'
+// Returns 0 if the port is OKAY,
+// Returns 1 if the scratchpad of the port fails (Often indicates a missing port)
+// Returns 2 if the loopback test of the port fails (Often indicates a malconfigured port)
+// Port refers to the actual IO port address. Use COM0-COM7 in Serial.h
 int CheckSerialPort(uint16_t port);
