@@ -23,6 +23,13 @@ section .multiboot.text
     _start:
         cli
 
+        mov [0xB8000], 0x10
+        mov [0xB8002], 0x11
+        mov [0xB8004], 0x4B
+        mov [0xB8006], 0x61
+        mov [0xB8008], 0x4F
+        mov [0xB800A], 0x53
+
         call boot_c_setup
 .e: 
         hlt
