@@ -14,6 +14,10 @@ section .multiboot.data
 		dd MBFLAGS
 		dd CHECKSUM
 
+section .launcher.stack
+_launcher_stack_bottom:
+resb 8192
+
 extern boot_c_setup
 
 ; Lower half only startup code
@@ -21,7 +25,12 @@ section .multiboot.text
     ; Entry point for the kernel
     global _start
     _start:
+        hlt
         cli
+
+        mov ebp, _launcher_stack_bottom
+        mov esp, _launcher_stack_bottom
+        push ebp
 
         mov [0xB8000], 0x10
         mov [0xB8002], 0x11
