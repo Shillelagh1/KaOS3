@@ -3,10 +3,9 @@ OUTPUT(bin/KaOS.bin)
 
 SECTIONS
 {
-	/* Kernel begins at 1 meg */
+	/* Kernel begins at 1 meb */
 	. = 1M;
 
-	_ROMBEGIN = .;
 	.multiboot.data : {
 		*(.multiboot.data)
 	}
@@ -15,20 +14,20 @@ SECTIONS
 		*(.multiboot.text)
 	}
 
-	. += 0xC0000000;
+	. += 0xFFC00000;
 	_ROMBEGIN = .;
-	.text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000) {
+	.text ALIGN (4K) : AT (ADDR (.text) - 0xFFC00000) {
 		_CODEBEGIN = .;
 		*(.text)
 		_CODEEND = .;
 	}
-	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000) {
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xFFC00000) {
 		*(.rodata)
 	}
-	.data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000) {
+	.data ALIGN (4K) : AT (ADDR (.data) - 0xFFC00000) {
 		*(.data)
 	}
-	.bss ALIGN (4K) : AT (ADDR (.bss) - 0xC0000000) {
+	.bss ALIGN (4K) : AT (ADDR (.bss) - 0xFFC00000) {
 		*(COMMON)
 		*(.bss)
 	}
