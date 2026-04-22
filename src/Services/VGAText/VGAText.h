@@ -1,3 +1,5 @@
+#include "../../glob.h"
+
 #define VGA_BLACK       0
 #define VGA_BLUE        1
 #define VGA_GREEN       2
@@ -17,7 +19,7 @@
 
 #define VGA_W 80
 #define VGA_H 25
-#define VGA_OFFSET 0xFFCB8000
+#define VGA_OFFSET (0xB8000 + HH_OFFSET)
 
 void VGAT_put(int x, int y, char c);
 void VGAT_write(int x, int y, char* str);
