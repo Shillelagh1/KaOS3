@@ -24,17 +24,13 @@ section .multiboot.data
     _launcher_msg:
         db 0x10, "KaOS Panic", 0x11, 0x00
 
-section .launcher.stack
-align 16
-_launcher_stack_bottom:
-resb 256
-
 section .bss
     align 4096
     _boot_pagedir:
         resb 4096
-    _kernel_stack_bottom:
+    _kernel_stack.bottom:
         resb 8192
+    _kernel_stack.top:
 
 ; Lower half only startup code
 section .multiboot.text
@@ -42,11 +38,6 @@ section .multiboot.text
     global _start
     _start:
         cli
-
-        ; Setup the bootstrapper stack
-        mov ebp, _launcher_stack_bottom
-        mov esp, _launcher_stack_bottom
-        push ebp
        
         ; Print a panic message in case we get stuck here
         ; I dont know what getting stuck here *implies* but
@@ -102,9 +93,7 @@ section .text
         mov cr3, eax
 
         ; Move to the higher half stack
-        ; mov ebp, _kernel_stack_bottom
-        ; mov esp, _kernel_stack_bottom
-        ; push ebp
+        mov esp, _kernel_stack.top
 
         ; Enter higher level kernel
         extern boot_c_setup
