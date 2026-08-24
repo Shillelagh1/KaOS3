@@ -43,14 +43,14 @@ section .multiboot.text
         ; I dont know what getting stuck here *implies* but
 .print_:
         mov eax, _launcher_msg  ; Setup print variables
-        mov ebx, VGA_BUF
+        mov edx, VGA_BUF
 .print_loop:
         mov cl, [eax]           ; Load the character
         cmp cl, 0
         je .print_loop.break    ; Break from the loop if the characters is 0
-        mov [ebx], cl           ; Put the character in the buffer
+        mov [edx], cl           ; Put the character in the buffer
         add eax, 1
-        add ebx, 2              ; Increment the pointers
+        add edx, 2              ; Increment the pointers
         jmp .print_loop         ; Loop
 .print_loop.break:
 
@@ -97,7 +97,18 @@ section .text
 
         ; Enter higher level kernel
         extern boot_c_setup
+        push ebx
         call boot_c_setup
 .e: 
         hlt
         jmp .e
+
+global _isr_heartbeat
+_isr_heartbeat:
+    cli
+    pushad
+    extern c_heartbeat
+    call c_heartbeat
+    popad
+    sti
+    iret

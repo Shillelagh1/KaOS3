@@ -12,7 +12,7 @@ run: TOS3build onlyrun
 	echo "OKAY"
 
 dbg: TOS3build onlydbg
-	ecoh "OKAY"
+	echo "OKAY"
 	
 
 fdbg: TOS3build
