@@ -1,5 +1,7 @@
 #include "glob.h"
 
+#include <stddef.h>
+
 #include "Devices/IO/Serial/Serial.h"
 #include "Devices/PIC/PIC.h"
 #include "Devices/PIT/PIT.h"
@@ -10,37 +12,17 @@
 #include "Services/VGAText/VGAText.h"
 #include "Services/Multiboot/multiboot.h"
 #include "Services/Paging/Paging.h"
+#include "Peripherals/Keyboard/PS2Kbd.h"
+#include "Services/Timers/Timers.h"
 
 #define KAOS_SPLASH "+================================+\n|                                |\n| ##\\  ##\\#####\\ ######\\#######\\ |\n| ##| ##/##/==####/===####/====/ |\n| #####/ #########|   #########\\ |\n| ##/=##\\##/==####|   ##\\====##| |\n| ##|  ####|  ##\\######/#######| |\n| \\=/  \\=\\=/  \\=/\\=====/\\======/ |\n|                                |\n+================================+\n"
 #define KAOS_VERSION "Version X.X.X"
-
-#define PIC0_OFFSET 0x20
-#define PIC1_OFFSET 0x28
 
 // Linker symbols
 extern char _ROMBEGIN;
 extern char _ROMEND;
 extern char _CODEBEGIN;
 extern char _CODEEND;
-
-extern void _isr_heartbeat();
-
-int toggle = 0;
-
-void c_heartbeat(){
-    toggle++;
-    if(toggle > 10){
-        VGAT_put(1, 1, ' ');
-        VGAT_write(3, 1, "       ");
-    } else {
-        VGAT_put(1, 1, 0x02);
-        VGAT_write(3, 1, "PIT OK!");
-    }
-    if(toggle > 20){
-        toggle = 0;
-    }
-    PIC_sendEOI(0); // Tell the PIC to reset the IRQ line ... OR ELSE!
-}
 
 extern void boot_c_setup(multiboot_info_t* mbd){
     SetupGDT();
@@ -53,15 +35,8 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     SetupSerialPort(COM_ADDR[0]);
     Serial_SendString(COM_ADDR[0], "===> SERCOM0 <===");
 
-    // Setup a PIT heartbeat clock
-    SetupPIT(0, PIT_MD_RATE);
-    PIT_SetReload(0, 65535);
-    IDT_AssignISR(PIC0_OFFSET + IRQ_PIT, &_isr_heartbeat);
-
     // Enable interrupts
     __asm__ volatile ("sti;");
-
-    PIC_unmask(IRQ_PIT); // Enable IRQ0 (PIT)
 
     // Perform memory enumeration.
     // The memory structures are all providing addresses in their physical addresses,
@@ -102,4 +77,11 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     VGAT_write(1,15,"|-Kernel Code Size: ");
     VGAT_print(itoa_dec(&_CODEEND - &_CODEBEGIN));
     VGAT_print(" B");
+
+    // Setup timers (heartbeat etc.)
+    SetupTimers();
+    EnableTimers();
+    SetTimersDbgSmiley(320);
+
+    SetupPS2Kbd();
 }

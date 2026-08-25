@@ -13,7 +13,6 @@ run: TOS3build onlyrun
 
 dbg: TOS3build onlydbg
 	echo "OKAY"
-	
 
 fdbg: TOS3build
 	xterm -e "gdb -ex 'target remote localhost:1234' -ex 'symbol-file bin/KaOS.sym'" &
