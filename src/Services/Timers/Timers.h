@@ -1,6 +1,8 @@
+#pragma once
+
 #define CTimers_MaxTimers 1024
 
-static long int CTimer_globCount; // Mainly for debugging purposes, avoid using this for timing.
+static volatile long int CTimer_globCount; // Mainly for debugging purposes, avoid using this for timing.
 
 void SetupTimers();             // Setup the timers SUBSYTEM
 void EnableTimers();            // Enable the timers SUBSYSTEM
@@ -9,7 +11,7 @@ void SetTimersDbgSmiley(int);   // Set the reset for the timers debug strober. 0
 int SecondsToCycles(float);
 float CyclesToSeconds(int);
 
-// Enum describing 
+// Enum describing a CTimer
 enum CTimerSpec_Type{
     CTimerSpec_Type_Oneshot,    // Runs once and then is destroyed
     CTimerSpec_Type_Repeat      // Runs until disabled
