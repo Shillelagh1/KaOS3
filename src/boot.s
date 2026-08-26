@@ -1,45 +1,104 @@
 bits 32
 
-extern boot_c_setup
-
-; Multiboot header
+; Multiboot header definitions
 MBALIGN  equ  1 << 0
 MEMINFO  equ  1 << 1
 MBFLAGS  equ  MBALIGN | MEMINFO
 MAGIC    equ  0x1BADB002
 CHECKSUM equ -(MAGIC + MBFLAGS)
 
-section .multiboot
+; Other magic
+VGA_BUF equ 0xB8000
+
+;   DWORD page directory entry for identity mapping the first 4MiB of
+; memory. Equates to an address of 0x0, is marked present, R/W(!), supervisor only,
+; write-through, global, PS=1 (4MiB)
+KERN_PDE equ 0x18B
+
+; Multiboot header declaration
+section .multiboot.data
 	align 4
 		dd MAGIC
 		dd MBFLAGS
 		dd CHECKSUM
+    _launcher_msg:
+        db 0x10, "KaOS Panic", 0x11, 0x00
 
 section .bss
-    ; Create a temporary stack
-	align 16
-    global _stack_top
-	_stack_bottom:
-	    resb 16384 ; 16 KiB
-	    _stack_top:
+    align 4096
+    _boot_pagedir:
+        resb 4096
+    _kernel_stack.bottom:
+        resb 8192
+    _kernel_stack.top:
 
-section .text
+; Lower half only startup code
+section .multiboot.text
     ; Entry point for the kernel
     global _start
     _start:
         cli
-        mov esp, _stack_top
-        mov ebp, _stack_top
+       
+        ; Print a panic message in case we get stuck here
+        ; I dont know what getting stuck here *implies* but
+.print_:
+        mov eax, _launcher_msg  ; Setup print variables
+        mov edx, VGA_BUF
+.print_loop:
+        mov cl, [eax]           ; Load the character
+        cmp cl, 0
+        je .print_loop.break    ; Break from the loop if the characters is 0
+        mov [edx], cl           ; Put the character in the buffer
+        add eax, 1
+        add edx, 2              ; Increment the pointers
+        jmp .print_loop         ; Loop
+.print_loop.break:
+
+        ; Populate the page directory
+        lea ecx, [_boot_pagedir - 0xFFC00000]   ; Calculate initial offset
+        lea eax, [ecx + 0 * 4]
+        mov dword [eax], KERN_PDE
+        lea eax, [ecx + 1023 * 4]
+        mov dword [eax], KERN_PDE
+
+        ; Load the page directory
+        lea eax, [_boot_pagedir - 0xFFC00000]
+        mov cr3, eax
+
+        ; Enable 4 MiB Pages
+        mov eax, cr4
+        mov eax, 0x00000010
+        mov cr4, eax
+
+        ; Enable paging
+.enablepg_:
+        mov eax, cr0
+        or eax, 0x80000001 ; Enable paging and WE
+        mov cr0, eax
+
+        ; Jump to the higher half
+        mov eax, .dest0
+        jmp eax
+
+section .text
+.dest0:
+
+        ; Clear the identity mapped page
+        lea ecx, [_boot_pagedir - 0xFFC00000]   ; Calculate initial offset
+        lea eax, [ecx + 0 * 4]
+        mov dword [eax], 0x0
+
+        ; Flush TLB
+        mov eax, cr3
+        mov cr3, eax
+
+        ; Move to the higher half stack
+        mov esp, _kernel_stack.top
+
+        ; Enter higher level kernel
+        extern boot_c_setup
         push ebx
         call boot_c_setup
-    .e:
+.e: 
+        hlt
         jmp .e
-    global _isr_heartbeat
-        _isr_heartbeat:
-        cli
-        pushad
-        extern heartbeat
-        call heartbeat
-        popad
-        sti
-        iret

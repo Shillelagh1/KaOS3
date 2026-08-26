@@ -1,3 +1,5 @@
+#pragma once
+#include <stdint.h>
 // stole all of this
 
 #define PIC1		0x20		/* IO base address for master PIC */

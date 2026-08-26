@@ -1,29 +1,37 @@
 ENTRY(_start)
 OUTPUT(bin/KaOS.bin)
 
+HH_OFFSET = 0xFFC00000;
+
 SECTIONS
 {
-	. = 2M;
-	_ROMBEGIN = .;
+	/* Kernel begins at 1 meb */
+	. = 1M;
 
-	.text BLOCK(4K) : ALIGN(4K)
-	{
-		*(.multiboot)
+	.multiboot.data : {
+		*(.multiboot.data)
+	}
+
+	.multiboot.text : {
+		*(.multiboot.text)
+	}
+
+	. += HH_OFFSET;
+	_ROMBEGIN = .;
+	.text ALIGN (4K) : AT (ADDR (.text) - HH_OFFSET) {
 		_CODEBEGIN = .;
 		*(.text)
 		_CODEEND = .;
 	}
-
-	.data BLOCK(4K) : ALIGN(4K)
-	{
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - HH_OFFSET) {
+		*(.rodata)
+	}
+	.data ALIGN (4K) : AT (ADDR (.data) - HH_OFFSET) {
 		*(.data)
 	}
-
-	.bss BLOCK(4K) : ALIGN(4K)
-	{
+	.bss ALIGN (4K) : AT (ADDR (.bss) - HH_OFFSET) {
 		*(COMMON)
 		*(.bss)
 	}
-
 	_ROMEND = .;
 }

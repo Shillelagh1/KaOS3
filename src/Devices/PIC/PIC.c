@@ -40,7 +40,7 @@ void PIC_sendEOI(uint8_t irq)
 	outb(PIC1_COMMAND,PIC_EOI);
 }
 
-void IRQ_mask(uint8_t IRQline) {
+void PIC_mask(uint8_t IRQline) {
     uint16_t port;
     uint8_t value;
 
