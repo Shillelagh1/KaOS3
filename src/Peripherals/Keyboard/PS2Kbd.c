@@ -2,6 +2,8 @@
 #include <stddef.h>
 
 #include "PS2Kbd.h"
+#include "PS2SCP.h"
+#include "Keyevent.h"
 
 #include "../../glob.h"
 #include "../../Devices/PIC/IRQ.h"
@@ -12,34 +14,125 @@
 #include "../../Devices/IO/IOPort/IOPort.h"
 #include "../../Services/Timers/Timers.h"
 
-#define KBD_Refresh_S (float)2
+#define KBD_FIFO_Size 64
+#define KBD_Refresh_S (float)0.005
 
 extern void _isr_ps2kbd();
 
 struct CTimer *ps2kbd_refresh_timer;
 
-int irq_count = 0;
-int irq_count_checked = 0;
+unsigned char scancode_fifo[KBD_FIFO_Size];
+int scancode_fifo_count = 0;
+enum SCP_State SCP_cstate;  // State of the decoder statemachine
+int SCP_isrelease;          // Release/Press state of the decoder
+
+// bit 0 = pressed
+unsigned char keymap[256];
+int isShifted = 0;
 
 // Interrupt service routine child called by IRQ1 (ps2 keyboard)
 void c_isr_ps2kbd(){
-    irq_count++;
-    VGAT_write(0,0, itoa_dec(irq_count));
+    unsigned char scancode = inb(PS2_Data);
 
-    unsigned int code = inb(PS2_Data);
+    // TODO: Handle FIFO overflow case
 
-    VGAT_write(0,2, "Scancode: 0x");
-    VGAT_print(itoa(code, 16));
-    Serial_SendString(COM0, itoa(code, 16));
+    // Add the scancode to a FIFO buffer
+    scancode_fifo[scancode_fifo_count] = scancode;
+    scancode_fifo_count++;
     PIC_sendEOI(IRQ_KB);
+}
+
+void DbgPrintPos(unsigned char pos){
+    if (SCP_isrelease)
+        Serial_SendString(COM0, "\n- ");
+    else
+        Serial_SendString(COM0, "\n+ ");
+
+    Serial_SendString(COM0, "0x");
+    Serial_SendString(COM0, itoa(pos, 16));
+    Serial_SendString(COM0, ": ");
+    Serial_SendString(COM0, itoa_dec(pos & 0b00011111));
+    Serial_SendString(COM0, ", ");
+    Serial_SendString(COM0, itoa_dec(pos >> 5));
+}
+
+unsigned char SearchLUT(unsigned char key, unsigned char* LUT, int max){
+    for (int i = 0; i < max; i++){
+        if (LUT[i] == key){
+            return (unsigned char)i;
+        }
+    }
+
+    return (unsigned char)0xFF;
+}
+
+struct Keyevent DecodeKeyEvent(unsigned char position, int release){
+    struct Keyevent event;
+    event.keyRelease = release & 1;
+    event.keyPosition = position;
+    event.key = LUT_KEKEY[position];
+
+    if (isShifted) event.keyChar = LUT_UPPER_CHAR[position];
+    else event.keyChar = LUT_LOWER_CHAR[position];
+
+    return event;
+}
+
+void SendKeyEvent(struct Keyevent event){
+    keymap[event.keyPosition] = !event.keyRelease;
+    if (event.key == KEY_LEFTSHIFT) isShifted = !event.keyRelease;
+
+    if (event.keyRelease) return;
+    char stringtoprint[]={event.keyChar, 0};
+    VGAT_print(stringtoprint);
+}
+
+void ProcessFIFOCodebuffer(){
+   /* Read the scancodes out of the FIFO one at a time, and
+    * process them. A state machine should be involved to set the states
+    * for 0xf0 break codes or 0xe0 function codes for instance
+    */
+
+    unsigned char code;
+    unsigned char pos;
+    struct Keyevent event;
+
+    for (int i = 0; i < scancode_fifo_count; i++){
+        code = scancode_fifo[i];
+        switch(SCP_cstate){
+            case s_SCP_DEF:
+                if (code == 0xE0){  // Alternate Keycodes
+                    SCP_cstate = s_SCP_ALT;
+                }
+                else if (code == 0xF0){ // Release Keycodes
+                    SCP_isrelease = 1;
+                } 
+                else {
+                    // +Character
+                    pos = SearchLUT(code, LUT_DEF_KEYPOS, 256);
+                    event = DecodeKeyEvent(pos, SCP_isrelease);
+                    SendKeyEvent(event);
+
+                    SCP_isrelease = 0;
+                }
+            break; 
+            case s_SCP_ALT:
+                // +Character
+                SCP_cstate = s_SCP_DEF;
+                pos = SearchLUT(code, LUT_ALT_KEYPOS, 256);
+                event = DecodeKeyEvent(pos, SCP_isrelease);
+                SendKeyEvent(event);
+
+                SCP_isrelease = 0;
+            break;
+        }
+    }
+    scancode_fifo_count = 0;
 }
 
 // Timer callback to read keyboard changes
 void t_ps2KbdRefresh(){
-    irq_count_checked = irq_count;
-    VGAT_write(4,0, "[");
-    VGAT_print(itoa_dec(irq_count_checked));
-    VGAT_print("]");
+    ProcessFIFOCodebuffer();
 }
 
 // PS2 Controller Related
@@ -95,6 +188,12 @@ void SetupPS2Kbd(){
         .loggingName = "PS2Kbd Rf"
     };
     CreateTimer(spec, 1);
+
+    SCP_cstate = s_SCP_DEF;
+
+    for(int i = 0; i < 256; i++){
+        keymap[i] = 0;
+    }
 
     PIC_unmask(IRQ_KB);
 }

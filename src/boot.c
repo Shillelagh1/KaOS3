@@ -78,10 +78,29 @@ extern void boot_c_setup(multiboot_info_t* mbd){
     VGAT_print(itoa_dec(&_CODEEND - &_CODEBEGIN));
     VGAT_print(" B");
 
+    // Serial info
+    /*
+    for(int i = 0; i < 8; i++){
+        VGAT_write(57, 1+i, "COM");
+        VGAT_print(itoa_dec(i)); VGAT_print(": ");
+        switch (CheckSerialPort(COM_ADDR[i])){
+            case 0:
+                VGAT_print("OK");
+                break;
+            case 1:
+                VGAT_print("NO (1)");
+                break;
+            case 2:
+                VGAT_print("BAD (2)");
+                break;
+        }
+    }*/
+
     // Setup timers (heartbeat etc.)
     SetupTimers();
     EnableTimers();
     SetTimersDbgSmiley(320);
 
     SetupPS2Kbd();
+    VGAT_write(0,0, " ");
 }

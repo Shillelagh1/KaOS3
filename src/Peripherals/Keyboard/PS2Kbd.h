@@ -17,4 +17,13 @@
 
 #define PS2Kbd_Default_Scanset 2
 
+#define KEYEVENT_PRESS 0
+#define KEYEVENT_RELEASE 1
+
+// ScanCode Parser state machine
+enum SCP_State{
+    s_SCP_DEF,
+    s_SCP_ALT
+};
+
 void SetupPS2Kbd();

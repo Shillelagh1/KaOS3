@@ -8,3 +8,5 @@ _isr_ps2kbd:
     popad
     sti
     iret
+
+section .data
